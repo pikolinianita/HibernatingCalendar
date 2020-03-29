@@ -16,8 +16,8 @@ public class Runner2 {
 
     public static void main(String[] args) {
 
-        var repo = new LessonRepository().initFromGoogle();
-         var sc = new Scanner(System.in);
-        sc.nextLine();
+      //  var repo = new LessonRepository().initFromGoogle();
+      //   var sc = new Scanner(System.in);
+       // sc.nextLine();
     }
 }

@@ -6,6 +6,7 @@
 package pl.luccasso.calendarfiles.repo;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -18,6 +19,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import pl.luccasso.calendarfiles.gutils.GoogleLoader;
 import pl.luccasso.calendarfiles.model.Lesson;
 
@@ -31,13 +33,13 @@ public class LessonRepository {
 
     private final SessionFactory sessionF;
 
-    public LessonRepository() {
+    LessonRepository() {
         sessionF = new Configuration()
                 .configure()
                 .buildSessionFactory();
     }
 
-    public LessonRepository initFromGoogle(){
+    public List<Lesson> initFromGoogle(){
        List<Lesson> lessonList = null;
         System.out.println("connecting to Google:"); 
        
@@ -47,34 +49,85 @@ public class LessonRepository {
         catch (IOException | GeneralSecurityException ex){
             System.out.println("Somrthing wrong with Google loader");
         }
+        return lessonList;
         
-        System.out.println(" trying to save");
         
-        try{
-        persistToFile(FILE_PATH, lessonList);
-        } catch (IOException ex){
-            System.out.println("Somrthing wrong with file save");
-        }
-        
-        System.out.println(" all done");
-        
-        return this;
-    }
+//        System.out.println(" trying to save");
+//        
+//        try{
+//        persistToFile(FILE_PATH, lessonList);
+//        } catch (IOException ex){
+//            System.out.println("Somrthing wrong with file save");
+//        }
+//        
+//        System.out.println("trying to persist");
+//        
+//        saveListToHibernate(lessonList);
+//        
+//        System.out.println(" all done");
+//        
+//        return this;
+     }
 
-    private void persistToFile(String fileName, List<Lesson> list) throws IOException {
+       
+    public LessonRepository persistToFile(String fileName, List<Lesson> list) throws IOException {
         var gson = new GsonBuilder().setPrettyPrinting().create();
         try(var fw = new BufferedWriter(new FileWriter(fileName))){
             fw.write(gson.toJson(list));
-        };
+        }
+        return this;
     }
     
-    List<Lesson> loadFromFile(String fileName) throws FileNotFoundException, IOException{
+    LessonRepository persistToFile(List<Lesson> lList) throws IOException {
+       return persistToFile(FILE_PATH, lList);
+    }
+    
+    public List<Lesson> loadFromFile(String fileName) throws FileNotFoundException, IOException{
          var gson = new GsonBuilder().create();
          LinkedList<Lesson> list = new LinkedList<>();
-         try( var reader = new BufferedReader(new FileReader(fileName))){         
-         list = gson.fromJson(reader, list.getClass());
+         try( var reader = new BufferedReader(new FileReader(fileName))){       
+             var token = new TypeToken<LinkedList<Lesson>>(){}.getType();
+         list = gson.fromJson(reader,token);
           }
         return list;
     }
+    
+    
+    public List<Lesson> loadFromFile() throws IOException{
+        return loadFromFile(FILE_PATH);
+    } 
+            
+            
+    LessonRepository saveListToHibernate(List<Lesson> list){
+        System.out.println(list.getClass());
+        System.out.println(new LinkedList<Lesson>().getClass());
+        try (var session = sessionF.openSession()){
+        session.beginTransaction();
+            list.forEach((item) -> session.save(item));
+        //TODO https://vladmihalcea.com/the-best-way-to-do-batch-processing-with-jpa-and-hibernate/
+        session.getTransaction().commit();
+        }
+        return this;
+    }
+    
+    public List<Lesson> findAll(){
+        List<Lesson> list; // = new LinkedList<>();
+          try (Session session = sessionF.openSession()) {
+          session.beginTransaction();
+          list = session.createQuery("FROM Lesson l", Lesson.class).getResultList();
+    } 
+    return list;
+}
+
+    public List<Lesson> getLessonsFromSchool(int nr){
+          try (Session session = sessionF.openSession()) {
+          session.beginTransaction();
+          Query<Lesson> query = session.createQuery("Select l From Lesson l where l.school = :schoolNr", Lesson.class);
+          query.setParameter("schoolNr", 26);
+          return query.getResultList();
+          }
+          
+           }
+   
     
 }
