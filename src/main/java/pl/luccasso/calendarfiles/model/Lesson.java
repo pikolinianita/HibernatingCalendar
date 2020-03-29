@@ -73,14 +73,14 @@ public class Lesson implements Serializable {
     }
 
     private void splitTitle(String eventTitle) {
-        //TODO better pattern in If
+        //TODO better pattern in If, better pattern in topic if
         if (eventTitle.startsWith("SP") || eventTitle.startsWith("sp")) {
             var sc = new Scanner(eventTitle).useDelimiter(spacePattern);
             school = Integer.parseInt(sc.next().substring(2));
             week = sc.next();
             sc.reset();
             if (sc.hasNext()) {
-                topic = sc.next();
+                topic = sc.nextLine();
             }
         }
     }

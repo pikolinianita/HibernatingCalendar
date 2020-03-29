@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -19,24 +20,37 @@ import org.junit.jupiter.api.Test;
 public class testLessonRepositoryQueries {
 
     private static LessonRepository repo;
-    
+
     @BeforeAll
     public static void SetUp() {
-         System.out.println("startSetUp" + repo);
+
         try {
             repo = new LessonRepositoryBuilder().setTestConfig().create();
         } catch (IOException ex) {
             Logger.getLogger(testLessonRepositoryQueries.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("endSetUp" +  repo);
+
     }
-    
+
     @Test
-    public void testGetFromSchool(){
-        System.out.println(repo);
+    public void testGetFromSchool() {
+
         var lList = repo.getLessonsFromSchool(26);
-        assertThat(lList).as("ListaZeSzkoly26").allMatch((lesson)->lesson.getSchool()==26);
-        System.out.println(lList);
+        assertThat(lList).as("Lista Ewentow Ze Szkoly 26").allMatch((lesson) -> lesson.getSchool() == 26);
+        lList.forEach(System.out::println);
     }
-    
+
+    @Test
+    public void testGetTopicsFromSchool() {
+
+        var lList = repo.getTopicsFromSchool(26);
+        assertThat(lList).as("Lista Temetow W wszkole 26").hasSize(8);
+        lList.forEach(System.out::println);
+
+    }
+
+    public void testGetMissingTopicsFromSchool() {
+        fail("todo");
+    }
+
 }

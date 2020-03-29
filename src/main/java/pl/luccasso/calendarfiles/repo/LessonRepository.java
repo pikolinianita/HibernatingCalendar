@@ -28,7 +28,7 @@ import pl.luccasso.calendarfiles.model.Lesson;
  * @author piko
  */
 public class LessonRepository {
-    
+
     private static final String FILE_PATH = "db.txt";
 
     private final SessionFactory sessionF;
@@ -39,19 +39,17 @@ public class LessonRepository {
                 .buildSessionFactory();
     }
 
-    public List<Lesson> initFromGoogle(){
-       List<Lesson> lessonList = null;
-        System.out.println("connecting to Google:"); 
-       
-        try{
-        lessonList = GoogleLoader.getLessonsFromGoogle();
-        }
-        catch (IOException | GeneralSecurityException ex){
+    public List<Lesson> initFromGoogle() {
+        List<Lesson> lessonList = null;
+        System.out.println("connecting to Google:");
+
+        try {
+            lessonList = GoogleLoader.getLessonsFromGoogle();
+        } catch (IOException | GeneralSecurityException ex) {
             System.out.println("Somrthing wrong with Google loader");
         }
         return lessonList;
-        
-        
+
 //        System.out.println(" trying to save");
 //        
 //        try{
@@ -67,67 +65,74 @@ public class LessonRepository {
 //        System.out.println(" all done");
 //        
 //        return this;
-     }
+    }
 
-       
     public LessonRepository persistToFile(String fileName, List<Lesson> list) throws IOException {
         var gson = new GsonBuilder().setPrettyPrinting().create();
-        try(var fw = new BufferedWriter(new FileWriter(fileName))){
+        try (var fw = new BufferedWriter(new FileWriter(fileName))) {
             fw.write(gson.toJson(list));
         }
         return this;
     }
-    
+
     LessonRepository persistToFile(List<Lesson> lList) throws IOException {
-       return persistToFile(FILE_PATH, lList);
+        return persistToFile(FILE_PATH, lList);
     }
-    
-    public List<Lesson> loadFromFile(String fileName) throws FileNotFoundException, IOException{
-         var gson = new GsonBuilder().create();
-         LinkedList<Lesson> list = new LinkedList<>();
-         try( var reader = new BufferedReader(new FileReader(fileName))){       
-             var token = new TypeToken<LinkedList<Lesson>>(){}.getType();
-         list = gson.fromJson(reader,token);
-          }
+
+    public List<Lesson> loadFromFile(String fileName) throws FileNotFoundException, IOException {
+        var gson = new GsonBuilder().create();
+        LinkedList<Lesson> list = new LinkedList<>();
+        try (var reader = new BufferedReader(new FileReader(fileName))) {
+            var token = new TypeToken<LinkedList<Lesson>>() {
+            }.getType();
+            list = gson.fromJson(reader, token);
+        }
         return list;
     }
-    
-    
-    public List<Lesson> loadFromFile() throws IOException{
+
+    public List<Lesson> loadFromFile() throws IOException {
         return loadFromFile(FILE_PATH);
-    } 
-            
-            
-    LessonRepository saveListToHibernate(List<Lesson> list){
+    }
+
+    LessonRepository saveListToHibernate(List<Lesson> list) {
         System.out.println(list.getClass());
         System.out.println(new LinkedList<Lesson>().getClass());
-        try (var session = sessionF.openSession()){
-        session.beginTransaction();
+        try (var session = sessionF.openSession()) {
+            session.beginTransaction();
             list.forEach((item) -> session.save(item));
-        //TODO https://vladmihalcea.com/the-best-way-to-do-batch-processing-with-jpa-and-hibernate/
-        session.getTransaction().commit();
+            //TODO https://vladmihalcea.com/the-best-way-to-do-batch-processing-with-jpa-and-hibernate/
+            session.getTransaction().commit();
         }
         return this;
     }
-    
-    public List<Lesson> findAll(){
-        List<Lesson> list; // = new LinkedList<>();
-          try (Session session = sessionF.openSession()) {
-          session.beginTransaction();
-          list = session.createQuery("FROM Lesson l", Lesson.class).getResultList();
-    } 
-    return list;
-}
 
-    public List<Lesson> getLessonsFromSchool(int nr){
-          try (Session session = sessionF.openSession()) {
-          session.beginTransaction();
-          Query<Lesson> query = session.createQuery("Select l From Lesson l where l.school = :schoolNr", Lesson.class);
-          query.setParameter("schoolNr", 26);
-          return query.getResultList();
-          }
-          
-           }
-   
-    
+    public List<Lesson> findAll() {
+        List<Lesson> list; // = new LinkedList<>();
+        try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+            list = session.createQuery("FROM Lesson l", Lesson.class).getResultList();
+        }
+        return list;
+    }
+
+    public List<Lesson> getLessonsFromSchool(int nr) {
+        try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+            Query<Lesson> query = session.createQuery("Select l From Lesson l where l.school = :schoolNr", Lesson.class);
+            query.setParameter("schoolNr", nr);
+            return query.getResultList();
+        }
+    }
+
+    public List<String> getTopicsFromSchool(int nr) {
+        try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+
+            Query<String> query = session.createQuery("Select DISTINCT l.topic from Lesson l where l.school = :schoolNr", String.class);
+            query.setParameter("schoolNr", nr);
+            return query.getResultList();
+        }
+
+    }
+
 }
