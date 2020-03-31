@@ -31,6 +31,8 @@ String title_1;
 
 @Column(name = "datab")
 String date_1;
+
+
     
 public Ewent(String name, int day){
     title_1 = name;

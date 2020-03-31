@@ -8,7 +8,6 @@ package pl.luccasso.calendarfiles.model;
 import com.google.api.services.calendar.model.Event;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
@@ -51,8 +50,15 @@ public class Lesson implements Serializable {
 
     @Column(name = "StartDate")
     LocalDate startDate;
+    
+    @Column(name = "update_status")
+    UpdateStatus status;
+    
+    @Column(name = "remerks")
+    String remarks;
 
     private static Pattern spacePattern = Pattern.compile(" ");
+    private static Pattern earPattern = Pattern.compile("\"");
 
     public Lesson() {
     }
@@ -70,6 +76,7 @@ public class Lesson implements Serializable {
         splitTitle(eventGoogle.getSummary());
         startDate = LocalDate.parse(eventGoogle.getStart().getDate().toStringRfc3339());
         googleID = eventGoogle.getId();
+        status = UpdateStatus.ORIGINAL;
     }
 
     private void splitTitle(String eventTitle) {
@@ -78,10 +85,14 @@ public class Lesson implements Serializable {
             var sc = new Scanner(eventTitle).useDelimiter(spacePattern);
             school = Integer.parseInt(sc.next().substring(2));
             week = sc.next();
-            sc.reset();
+            sc.useDelimiter(earPattern);
             if (sc.hasNext()) {
-                topic = sc.nextLine();
+                sc.next();
+                topic = sc.next();
             }
+           if (sc.hasNext()) {
+               remarks = sc.next();
+           }
         }
     }
 }
