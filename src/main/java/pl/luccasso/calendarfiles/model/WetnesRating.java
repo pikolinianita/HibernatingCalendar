@@ -9,6 +9,17 @@ package pl.luccasso.calendarfiles.model;
  *
  * @author piko
  */
+
 public enum WetnesRating {
-    DRY, WET, MIXED;
+    DRY, WET, MIXED, NOT_SET;
+    
+    public static WetnesRating getFromString(String token){
+        switch (token.strip()){
+            case "S": return DRY;
+            case "M": return WET;
+            case "S/M": return MIXED;
+            default: return NOT_SET;
+        }
+    }
+    
 }

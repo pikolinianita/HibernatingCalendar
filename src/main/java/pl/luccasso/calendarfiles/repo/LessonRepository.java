@@ -34,9 +34,7 @@ public class LessonRepository {
     private final SessionFactory sessionF;
 
     LessonRepository() {
-        sessionF = new Configuration()
-                .configure()
-                .buildSessionFactory();
+        sessionF = HibernateUtil.getFactory();
     }
 
     public List<Lesson> initFromGoogle() {
@@ -107,7 +105,7 @@ public class LessonRepository {
     }
 
     public List<Lesson> findAll() {
-        List<Lesson> list; // = new LinkedList<>();
+        List<Lesson> list; 
         try (Session session = sessionF.openSession()) {
             session.beginTransaction();
             list = session.createQuery("FROM Lesson l", Lesson.class).getResultList();

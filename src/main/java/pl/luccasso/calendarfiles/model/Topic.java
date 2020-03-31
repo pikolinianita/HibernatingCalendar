@@ -38,7 +38,7 @@ public class Topic implements Serializable {
     @Column(name = "name")
     String name;
     
-    @Column (name = "year")
+    @Column (name = "topic_year")
     int year;
     
     @Column(name = "help")
@@ -48,5 +48,5 @@ public class Topic implements Serializable {
     WetnesRating wetnes;
     
     @Column(name = "remarks")
-    String reamrks;
+    String remarks;
 }
