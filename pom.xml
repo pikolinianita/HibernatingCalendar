@@ -9,6 +9,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>12</maven.compiler.source>
         <maven.compiler.target>12</maven.compiler.target>
+        <sonar.projectKey>pikolinianita_HibernatingCalendar</sonar.projectKey>
+        <sonar.organization>pikolinianita</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.login>de16434081154784af3b4ec85c6f33bfa3abcde4</sonar.login>
     </properties>
     
     <dependencies>

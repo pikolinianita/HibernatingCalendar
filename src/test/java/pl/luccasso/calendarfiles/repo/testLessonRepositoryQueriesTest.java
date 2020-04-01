@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author piko
  */
-public class testLessonRepositoryQueries {
+public class testLessonRepositoryQueriesTest {
 
     private static LessonRepository repo;
 
@@ -27,7 +27,7 @@ public class testLessonRepositoryQueries {
         try {
             repo = new LessonRepositoryBuilder().setTestConfig().create();
         } catch (IOException ex) {
-            Logger.getLogger(testLessonRepositoryQueries.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(testLessonRepositoryQueriesTest.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

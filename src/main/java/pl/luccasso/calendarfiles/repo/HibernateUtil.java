@@ -22,8 +22,11 @@ public class HibernateUtil {
                 .buildSessionFactory();
     }
     
-    static SessionFactory getFactory(){
+    public static SessionFactory getFactory(){
         return sessionF;
+    }
+
+    private  HibernateUtil() {
     }
     
 }

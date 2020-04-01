@@ -50,10 +50,10 @@ public class Lesson implements Serializable {
 
     @Column(name = "StartDate")
     LocalDate startDate;
-    
+
     @Column(name = "update_status")
     UpdateStatus status;
-    
+
     @Column(name = "remerks")
     String remarks;
 
@@ -82,17 +82,18 @@ public class Lesson implements Serializable {
     private void splitTitle(String eventTitle) {
         //TODO better pattern in If, better pattern in topic if
         if (eventTitle.startsWith("SP") || eventTitle.startsWith("sp")) {
-            var sc = new Scanner(eventTitle).useDelimiter(spacePattern);
-            school = Integer.parseInt(sc.next().substring(2));
-            week = sc.next();
-            sc.useDelimiter(earPattern);
-            if (sc.hasNext()) {
-                sc.next();
-                topic = sc.next();
+            try (var sc = new Scanner(eventTitle).useDelimiter(spacePattern)) {
+                school = Integer.parseInt(sc.next().substring(2));
+                week = sc.next();
+                sc.useDelimiter(earPattern);
+                if (sc.hasNext()) {
+                    sc.next();
+                    topic = sc.next();
+                }
+                if (sc.hasNext()) {
+                    remarks = sc.next();
+                }
             }
-           if (sc.hasNext()) {
-               remarks = sc.next();
-           }
         }
     }
 }
