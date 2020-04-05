@@ -25,11 +25,21 @@ public class TopicRepository {
     private static final String PATH = "db_topics.txt";
 
     private final SessionFactory sessionF;
+    
+    private static TopicRepository instance;
 
-    public TopicRepository() {
+    private TopicRepository() {
         sessionF = HibernateUtil.getFactory();
     }
 
+    public static TopicRepository getInstance(){
+        if (instance == null){
+            instance = new TopicRepository();
+        }
+        return instance;
+        
+    }
+    
     public List<Topic> loadFromFile() throws FileNotFoundException, IOException {
         return loadFromFile(PATH);
     }
@@ -58,7 +68,11 @@ public class TopicRepository {
         try (var session = sessionF.openSession()) {
             session.beginTransaction();
 
-            list.forEach(session::save);
+            var existingList = findAll();
+            
+            list.forEach(element -> {if (!existingList.contains(element)){
+            session.save(element);}
+            });
 
             session.getTransaction().commit();
         }
@@ -72,5 +86,13 @@ public class TopicRepository {
             list = session.createQuery("FROM Topic t", Topic.class).getResultList();
             return list;
         }
+    }
+    
+    public Topic findByName(String name){
+        try (var session = sessionF.openSession()) {
+            session.beginTransaction();
+            Topic value = session.createQuery("SELECT t FROM Topic t WHERE t.name = :parName", Topic.class).setParameter("parName", name).getSingleResult();
+            return value;
+    }
     }
 }

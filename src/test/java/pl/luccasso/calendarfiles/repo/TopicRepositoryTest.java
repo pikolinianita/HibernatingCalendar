@@ -7,6 +7,7 @@ package pl.luccasso.calendarfiles.repo;
 
 import java.io.IOException;
 import static org.assertj.core.api.Assertions.*;
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
 
 
@@ -20,21 +21,25 @@ public class TopicRepositoryTest {
     @Test
     public void testLoadFromFile() throws IOException {
       
-        var listFromFile = new TopicRepository().loadFromFile();
+        var listFromFile = TopicRepository.getInstance().loadFromFile();
         assertThat(listFromFile).as("topic list from file").hasSize(67);
         
     }
     
     @Test
-    public void testHibernate() throws IOException{
+    public void testHibernate() throws IOException{        
         
-        var repo = new TopicRepository();
+        var repo = TopicRepository.getInstance();
+        
         var listFromFile = repo.loadFromFile();
+        
         var receivedList = repo.saveListToHibernate(listFromFile).findAll();
         
         assertThat(receivedList).as("topic list from hibernate").hasSize(67);
         
         
     }
+    
+    
     
 }

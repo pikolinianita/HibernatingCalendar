@@ -23,7 +23,7 @@ public class LessonRepositoryTest {
 
         var repo = new LessonRepositoryBuilder().setTestConfig().create();
         var list = repo.findAll();
-        assertThat(list.size()).isBetween(500, 2000);
+        assertThat(list.size()).isBetween(400, 2000);
         System.out.println("To Jest z Hibernata");
         System.out.println(list.size());
     }
@@ -32,7 +32,7 @@ public class LessonRepositoryTest {
     public void testFileLoad() throws IOException {
         var repo = new LessonRepositoryBuilder().setTestConfig().create();
         var list = repo.loadFromFile();
-        assertThat(list.size()).isBetween(500, 2000);
+        assertThat(list.size()).isBetween(400, 2000);
         System.out.println("To Jest z pliku");
         System.out.println(list.size());
     }

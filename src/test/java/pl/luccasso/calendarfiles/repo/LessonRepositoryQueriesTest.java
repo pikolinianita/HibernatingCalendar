@@ -6,6 +6,7 @@
 package pl.luccasso.calendarfiles.repo;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,9 +18,9 @@ import org.junit.jupiter.api.Test;
  *
  * @author piko
  */
-public class testLessonRepositoryQueriesTest {
+public class LessonRepositoryQueriesTest {
 
-    private static LessonRepository repo;
+    private static LessonRepository repo = LessonRepository.getInstance();
 
     @BeforeAll
     public static void SetUp() {
@@ -27,7 +28,7 @@ public class testLessonRepositoryQueriesTest {
         try {
             repo = new LessonRepositoryBuilder().setTestConfig().create();
         } catch (IOException ex) {
-            Logger.getLogger(testLessonRepositoryQueriesTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LessonRepositoryQueriesTest.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -43,7 +44,7 @@ public class testLessonRepositoryQueriesTest {
     @Test
     public void testGetTopicsFromSchool() {
 
-        var lList = repo.getTopicsFromSchool(26);
+        List<String> lList = repo.getTopicsFromSchool(26);
         assertThat(lList).as("Lista Temetow W wszkole 26").hasSize(8);
         lList.forEach(System.out::println);
 
@@ -52,5 +53,27 @@ public class testLessonRepositoryQueriesTest {
     public void testGetMissingTopicsFromSchool() {
         fail("todo");
     }
+    
+    @Test
+    public void testDeleteOrigilals(){
+        int originalNumber = repo.findAll().size();
+        System.out.println("aaa");
+        int sizeAfterDelete = repo.deleteOriginalEntries().findAll().size();
+        System.out.println("bbb");
+        assertThat(originalNumber).as("should Be something").isGreaterThan(1);
+        assertThat(sizeAfterDelete).as("should Be empty").isLessThan(1);
+        
+        System.out.printf("there were %d; and now is %d /n" , originalNumber, sizeAfterDelete );
+    }
+    
+     @Test
+     public void testHack(){
+        repo.uglyHack();
+        var list = repo.findAll();
+       
+        list.forEach(System.out::println); 
+        
+        assertThat(list.size()).isBetween(400, 2000);
+     }
 
 }

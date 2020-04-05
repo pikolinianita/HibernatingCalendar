@@ -16,12 +16,15 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import pl.luccasso.calendarfiles.gutils.GoogleLoader;
 import pl.luccasso.calendarfiles.model.Lesson;
+import pl.luccasso.calendarfiles.model.Topic;
+import pl.luccasso.calendarfiles.model.UpdateStatus;
 
 /**
  *
@@ -33,10 +36,21 @@ public class LessonRepository {
 
     private final SessionFactory sessionF;
 
-    LessonRepository() {
+    private static LessonRepository instance;
+    
+    private LessonRepository() {
         sessionF = HibernateUtil.getFactory();
-    }
+        }
 
+    public static LessonRepository getInstance(){
+        if (instance == null){
+            instance = new LessonRepository();
+        }
+        return instance;
+    }
+    
+    
+    
     public List<Lesson> initFromGoogle() {
         List<Lesson> lessonList = null;
         System.out.println("connecting to Google:");
@@ -91,13 +105,28 @@ public class LessonRepository {
     public List<Lesson> loadFromFile() throws IOException {
         return loadFromFile(FILE_PATH);
     }
+    
+    LessonRepository deleteOriginalEntries(){
+        try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+            var query = session.createQuery("DELETE FROM Lesson l WHERE l.status = :status")
+                    .setParameter("status", UpdateStatus.ORIGINAL)
+                    .executeUpdate();
+        return this;
+    }
+    }
 
     LessonRepository saveListToHibernate(List<Lesson> list) {
         System.out.println(list.getClass());
         System.out.println(new LinkedList<Lesson>().getClass());
         try (var session = sessionF.openSession()) {
             session.beginTransaction();
-            list.forEach((item) -> session.save(item));
+            list.forEach((item) -> {
+                System.out.println(item.getTopic() + " " + Integer.toString(item.getSchool()) + " " + item.getGoogleID());
+                session.save(item);
+                session.getTransaction().commit();
+                session.beginTransaction();
+                    });
             //TODO https://vladmihalcea.com/the-best-way-to-do-batch-processing-with-jpa-and-hibernate/
             session.getTransaction().commit();
         }
@@ -108,7 +137,7 @@ public class LessonRepository {
         List<Lesson> list; 
         try (Session session = sessionF.openSession()) {
             session.beginTransaction();
-            list = session.createQuery("FROM Lesson l", Lesson.class).getResultList();
+            list = session.createQuery("Select l FROM Lesson l JOIN FETCH l.topic", Lesson.class).getResultList();
         }
         return list;
     }
@@ -119,6 +148,7 @@ public class LessonRepository {
             Query<Lesson> query = session.createQuery("Select l From Lesson l where l.school = :schoolNr", Lesson.class);
             query.setParameter("schoolNr", nr);
             return query.getResultList();
+                    
         }
     }
 
@@ -126,11 +156,30 @@ public class LessonRepository {
         try (Session session = sessionF.openSession()) {
             session.beginTransaction();
 
-            Query<String> query = session.createQuery("Select DISTINCT l.topic from Lesson l where l.school = :schoolNr", String.class);
+            Query<Topic> query = session.createQuery("Select DISTINCT l.topic from Lesson l where l.school = :schoolNr", Topic.class);
             query.setParameter("schoolNr", nr);
-            return query.getResultList();
+            return query.getResultList().stream()
+                    .map(topic -> topic.getName())
+                    .collect(Collectors.toList());
+             
         }
-
     }
 
+    public void uglyHack(){
+       try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+            
+            var nQueryDrop = session.createNativeQuery("DROP TABLE LESSONS");
+            nQueryDrop.executeUpdate();
+            
+            var nQueryDropT = session.createNativeQuery("DROP TABLE TOPICS");
+            nQueryDropT.executeUpdate();
+            
+            var nQueryT = session.createNativeQuery("CREATE TABLE TOPICS AS SELECT * FROM CSVREAD('e:/topics.csv');");
+            nQueryT.executeUpdate();
+            
+            var nQuery = session.createNativeQuery("CREATE TABLE LESSONS AS SELECT * FROM CSVREAD('e:/lessons.csv');");
+            nQuery.executeUpdate();
+    }}
+    
 }

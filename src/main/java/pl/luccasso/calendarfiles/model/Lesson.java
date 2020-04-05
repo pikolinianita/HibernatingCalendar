@@ -14,11 +14,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import pl.luccasso.calendarfiles.repo.TopicRepository;
 
 /**
  *
@@ -32,15 +35,20 @@ import lombok.ToString;
 @Table(name = "Lessons")
 public class Lesson implements Serializable {
 
+   
+    
+//    @Id
+//    @GeneratedValue
+//    private Long id;
+ 
+    
     @Id
-    @GeneratedValue
-    private Long id;
-
     @Column(name = "googleID")
     String googleID;
 
-    @Column(name = "title")
-    String topic;
+    @ManyToOne
+    @JoinColumn(name = "name")
+    Topic topic;
 
     @Column(name = "schoolNumber")
     int school;
@@ -59,17 +67,17 @@ public class Lesson implements Serializable {
 
     private static Pattern spacePattern = Pattern.compile(" ");
     private static Pattern earPattern = Pattern.compile("\"");
-
+   
     public Lesson() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    void setId(Long newValue) {
-        id = newValue;
-    }
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    void setId(Long newValue) {
+//        id = newValue;
+//    }
 
     public Lesson(Event eventGoogle) {
 
@@ -88,7 +96,8 @@ public class Lesson implements Serializable {
                 sc.useDelimiter(earPattern);
                 if (sc.hasNext()) {
                     sc.next();
-                    topic = sc.next();
+                    String topicTmp = sc.next();
+                    topic = TopicRepository.getInstance().findByName(topicTmp);
                 }
                 if (sc.hasNext()) {
                     remarks = sc.next();

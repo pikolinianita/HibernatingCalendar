@@ -14,54 +14,58 @@ import pl.luccasso.calendarfiles.model.Lesson;
  * @author piko
  */
 public class LessonRepositoryBuilder {
+
     private boolean fromGoogleNotFromFile = true;
     private boolean saveToHibernate = true;
     private boolean saveToFile = false;
-    
+
     private LessonRepository repo;
-    
-    public LessonRepository create() throws IOException{
-        repo = new LessonRepository();
-        List<Lesson> lList;
-        if (fromGoogleNotFromFile){
+
+    public LessonRepository create() throws IOException {
+        repo = LessonRepository.getInstance();
+        List<Lesson> lList = null;
+        if (fromGoogleNotFromFile) {
             lList = repo.initFromGoogle();
+
+            if (saveToHibernate) {
+                repo.saveListToHibernate(lList);
+            }
         } else {
-            lList = repo.loadFromFile();
+            repo.uglyHack();
+
         }
-        if (saveToHibernate){
-            repo.saveListToHibernate(lList);
-        }
-        if (saveToFile){
+        if (saveToFile) {
+            if (lList == null) {
+                lList = repo.findAll();
+            }
             repo.persistToFile(lList);
         }
-        
+
         return repo;
-       }
-    
-    public LessonRepositoryBuilder setTestConfig(){
-        
-    fromGoogleNotFromFile = false;
-    saveToHibernate = true;
-    saveToFile = false;
-        
-    return this;
     }
-    
-    
-    
-    public LessonRepositoryBuilder setProductionConfig(){
-        
-    fromGoogleNotFromFile = true;
-    saveToHibernate = true;
-    saveToFile = false;
-        
-    return this;
-        
+
+    public LessonRepositoryBuilder setTestConfig() {
+
+        fromGoogleNotFromFile = false;
+        saveToHibernate = true;
+        saveToFile = false;
+
+        return this;
     }
-    
-     public LessonRepositoryBuilder setSaveToFile(boolean b){
-         saveToFile = b;
-         return this;
-     }
-    
+
+    public LessonRepositoryBuilder setProductionConfig() {
+
+        fromGoogleNotFromFile = true;
+        saveToHibernate = true;
+        saveToFile = false;
+
+        return this;
+
+    }
+
+    public LessonRepositoryBuilder setSaveToFile(boolean b) {
+        saveToFile = b;
+        return this;
+    }
+
 }

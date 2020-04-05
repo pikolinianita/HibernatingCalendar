@@ -8,6 +8,7 @@ package pl.luccasso.calendarfiles.main;
 import java.io.IOException;
 
 import pl.luccasso.calendarfiles.repo.LessonRepositoryBuilder;
+import pl.luccasso.calendarfiles.repo.TopicRepository;
 
 /**
  *
@@ -16,8 +17,10 @@ import pl.luccasso.calendarfiles.repo.LessonRepositoryBuilder;
 public class RefreshFileWithGoogleData {
 
     public static void main(String[] args) throws IOException {
-
-       var repo = new LessonRepositoryBuilder().setProductionConfig().setSaveToFile(true).create();
+        
+       var topicRepo = TopicRepository.getInstance();
+       topicRepo.saveListToHibernate(topicRepo.loadFromFile());
+       var lessRepo = new LessonRepositoryBuilder().setProductionConfig().setSaveToFile(true).create();
      
     }
 }
