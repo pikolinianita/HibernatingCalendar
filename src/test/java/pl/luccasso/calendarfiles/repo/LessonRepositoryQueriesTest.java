@@ -50,8 +50,12 @@ public class LessonRepositoryQueriesTest {
 
     }
 
+    @Test
     public void testGetMissingTopicsFromSchool() {
-        fail("todo");
+        
+        List<String> lList = repo.getMissnigTopicsFromSchool(26);
+        assertThat(lList).as("Lista Temetow W wszkole 26").hasSize(8);
+        lList.forEach(System.out::println);
     }
     
     @Test

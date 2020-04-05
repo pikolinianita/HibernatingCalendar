@@ -181,5 +181,39 @@ public class LessonRepository {
             var nQuery = session.createNativeQuery("CREATE TABLE LESSONS AS SELECT * FROM CSVREAD('e:/lessons.csv');");
             nQuery.executeUpdate();
     }}
+
+    List<String> getMissnigTopicsFromSchool(int nr) {
+       try (Session session = sessionF.openSession()) {
+            session.beginTransaction();
+
+            final String QUERY_TEXT =  
+            "Select t.name "
+            + "FROM Topic  t "
+            + "WHERE t.id NOT IN ( "
+                + "Select DISTINCT t.id "
+                + "from Lesson l "
+                + "join Topic t on l.topic = t.id  "
+                + "where l.school  = :SchoolNr "
+                + ") "
+            + "AND t.year = :year ";
+            Query<String> query = session.createQuery("Select t.name FROM Topic  t WHERE t.id NOT IN ( Select DISTINCT t.id from Lesson l join Topic t on l.topic = t.id  where l.school  = :schoolNr ) AND t.year = :year ", String.class)
+            .setParameter("schoolNr", nr)
+            .setParameter("year", 2);
+            
+            
+            
+            //Select t.name
+            //FROM TOPICS  t
+            //WHERE t.ID NOT IN (
+                //Select DISTINCT t.id
+                //from Lessons l
+                //join Topics t on l.NAME = t.ID  
+                //where l.SCHOOLNUMBER  = :SchoolNr
+                //) 
+            //AND t.TOPIC_YEAR = 2
+            
+             return query.getResultList();
+       }
+    }
     
 }
