@@ -55,6 +55,7 @@ public class GoogleLoader {
                 } catch (Exception ex) {
                     System.out.println("Exception thrown - Event: \n" + event);
                     System.out.println(event.getSummary());
+                    ex.printStackTrace();
                 }
             }
         }
